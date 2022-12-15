@@ -12,9 +12,12 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
+    resourceTableModel.cpp \
     server.cpp
 
 HEADERS += \
+    connectToDB.h \
+    resourceTableModel.h \
     server.h
 
 FORMS += \
@@ -24,3 +27,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    resource.qrc

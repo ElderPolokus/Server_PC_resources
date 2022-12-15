@@ -1,0 +1,23 @@
+CREATE DATABASE "DB_server_connections"
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'Russian_Russia.1251'
+    LC_CTYPE = 'Russian_Russia.1251'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+
+-- ----------------------------------------
+
+CREATE TABLE IF NOT EXISTS public.users
+(
+    ipv4address_user character(20) COLLATE pg_catalog."default",
+    logontime character(30) COLLATE pg_catalog."default",
+    CONSTRAINT users_ipv4address_user_key UNIQUE (ipv4address_user)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.users
+    OWNER to postgres;

@@ -27,12 +27,16 @@ private:
     QSqlQuery* query;
     QSqlTableModel* model;
 
+protected:
+    void closeEvent(QCloseEvent* e);
 
 public slots:
     virtual void slotNewConnection();
     void slotReadClient();
-    void slotDisconnected(QString IP);
+    void slotDisconnected();
     void statusInfo(QString IP);
-    void refreshInfo();
+    void refreshStatusInfo();
+    void resourcesInfo(QString strMes);
 };
+
 #endif // SERVER_H
