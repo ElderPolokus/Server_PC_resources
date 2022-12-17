@@ -102,8 +102,6 @@ void server::statusInfo(QString IP) {
 }
 
 void server::resourcesInfo(int cpu, int ram, QString disk_name, int disk_value) {
-    //Разбиваем полученные данные на строки
-    //Передаем данные в таблицу
     int nRows = 0;
     query->exec("SELECT COUNT(IPv4Address_user) FROM Users WHERE LogOnTime = 'Connected' ");
     if(query->next()) {
