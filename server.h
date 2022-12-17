@@ -36,7 +36,7 @@ public slots:
     void slotDisconnected();
     void statusInfo(QString IP);
     void refreshStatusInfo();
-    void resourcesInfo(QString strMes);
+    void resourcesInfo(int cpu, int ram, QString disk_name, int disk_value);
 };
 
 #endif // SERVER_H

@@ -73,26 +73,15 @@ void server::slotReadClient() {
         if(pClientSocket->bytesAvailable() < m_nNextBlockSize) {
             break;
         }
-        QTime time;
-        QString str;
-        in >> time >> str;
-        QString strMessage = str;
-        ui->m_ptxt->append(strMessage);
+        // Переменные для получения ифнормации по ресурсам
+        int cpu_value, ram_value, disk_value;
+        QString disk_name;
+
+        in >> cpu_value >> ram_value >> disk_name >> disk_value;
         //Передаем данные в модель таблицы
-        resourcesInfo(strMessage);
+        resourcesInfo(cpu_value, ram_value, disk_name, disk_value);
         m_nNextBlockSize = 0;
     }
-}
-
-void server::sendToClient(QTcpSocket* pSocket, const QString& str) {
-    QByteArray arrBlock;
-    //Данные на вывод
-    QDataStream out(&arrBlock, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_6_3);
-    out << quint16(0) << QTime::currentTime() << str;
-    out.device()->seek(0);
-    out <<quint16(arrBlock.size() - sizeof(quint16));
-    pSocket->write(arrBlock);
 }
 
 void server::refreshStatusInfo() {
@@ -112,9 +101,8 @@ void server::statusInfo(QString IP) {
     refreshStatusInfo();
 }
 
-void server::resourcesInfo(QString strMes) {
+void server::resourcesInfo(int cpu, int ram, QString disk_name, int disk_value) {
     //Разбиваем полученные данные на строки
-    QStringList listData = strMes.split(" ", Qt::SkipEmptyParts);
     //Передаем данные в таблицу
     int nRows = 0;
     query->exec("SELECT COUNT(IPv4Address_user) FROM Users WHERE LogOnTime = 'Connected' ");
@@ -126,17 +114,14 @@ void server::resourcesInfo(QString strMes) {
         for(int i = 1; i<nRows+1; i++) {
             if(query->next()) {
                 resModel->setResource(i, 1, query->value(0).toString());
-                resModel->setResource(i, 2, listData.at(0));
-                resModel->setResource(i, 3, listData.at(1));
-                resModel->setResource(i, 4, listData.at(2) + listData.at(3) + " " + listData.at(4));
-                resModel->setResource(i, 5, listData.at(5));
+                resModel->setResource(i, 2, QString::number(cpu));
+                resModel->setResource(i, 3, QString::number(ram));
+                resModel->setResource(i, 4, disk_name);
+                resModel->setResource(i, 5, QString::number(disk_value));
             }
         }
         ui->resourcesView->setModel(resModel);
     }
-//    resModel->setResource(1, 1, "Ko");
-//    resModel->setResource(1, 2, "Op");
-//    resModel->insertRow(resModel->rowCount(QModelIndex()));
 }
 
 void server::closeEvent(QCloseEvent* e) {
