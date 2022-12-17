@@ -6,21 +6,34 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>830</width>
-    <height>261</height>
+    <width>753</width>
+    <height>525</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>server</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <widget class="QTextEdit" name="m_ptxt">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>230</y>
+      <width>311</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
    <widget class="QTableView" name="infoView">
     <property name="geometry">
      <rect>
-      <x>520</x>
+      <x>440</x>
       <y>10</y>
       <width>291</width>
-      <height>200</height>
+      <height>201</height>
      </rect>
     </property>
    </widget>
@@ -29,8 +42,8 @@
      <rect>
       <x>20</x>
       <y>10</y>
-      <width>481</width>
-      <height>200</height>
+      <width>401</width>
+      <height>201</height>
      </rect>
     </property>
    </widget>
@@ -40,7 +53,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>830</width>
+     <width>753</width>
      <height>22</height>
     </rect>
    </property>
