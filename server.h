@@ -5,6 +5,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QtSql>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class server; }
@@ -23,9 +24,8 @@ private:
     QTcpServer* m_pTcpServer;
     quint16 m_nNextBlockSize;
     void sendToClient(QTcpSocket* pSocket, const QString& str);
-    QSqlDatabase db;
-    QSqlQuery* query;
     QSqlTableModel* model;
+    QVector<QString>* IP_clients;
 
 protected:
     void closeEvent(QCloseEvent* e);
@@ -34,9 +34,7 @@ public slots:
     virtual void slotNewConnection();
     void slotReadClient();
     void slotDisconnected();
-    void statusInfo(QString IP);
-    void refreshStatusInfo();
-    void resourcesInfo(int cpu, int ram, QString disk_name, int disk_value);
+    void resourcesInfo(QString IP_cl, int cpu, int ram, QString disk_name, int disk_value);
 };
 
 #endif // SERVER_H

@@ -3,7 +3,7 @@
 #include <QMessageBox>
 #include <QTime>
 #include <QSqlQueryModel>
-#include "connectToDB.h"
+#include "db.h"
 #include "resourceTableModel.h"
 
 server::server(int nPort, QWidget *parent)
@@ -12,12 +12,11 @@ server::server(int nPort, QWidget *parent)
     , m_nNextBlockSize(0)
 {
     ui->setupUi(this);
-    //resourcesModel
-
+    //resourcesModel vector
+    IP_clients = new QVector<QString>;
     //DataBase
-    createConnectionDB();
-    refreshStatusInfo();
-    query = new QSqlQuery(db);
+    DB db;
+    db.connectToDB();
     //Запуск сервера
     m_pTcpServer = new QTcpServer(this);
     if (!m_pTcpServer->listen(QHostAddress::Any, nPort)) {
@@ -39,9 +38,12 @@ void server::slotNewConnection() {
     QTcpSocket* pClientSocket = m_pTcpServer->nextPendingConnection();
     //Вытаскиваем IP-адрес клиента
     QString IP = ((QHostAddress)pClientSocket->peerAddress().toIPv4Address()).toString();
-    statusInfo(IP);
-    query->exec("UPDATE Users SET LogOnTime = 'Connected' WHERE IPv4Address_user = '"+IP+"' ");
-    refreshStatusInfo();
+    DB db;
+    db.insertLogTimeDB(IP, "Connected");
+    // Передаем IP в вектор
+    if(!IP_clients->contains(IP)) {
+        IP_clients->push_back(IP);
+    }
     //При отключении клиента сервер удалит сокет
     connect(pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
     connect(pClientSocket, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
@@ -52,8 +54,16 @@ void server::slotDisconnected() {
     QString IP;
     QTcpSocket* pClientSocket = (QTcpSocket*)sender();
     IP = ((QHostAddress)pClientSocket->peerAddress().toIPv4Address()).toString();
-    query->exec("UPDATE Users SET LogOnTime = 'Disconnected' WHERE IPv4Address_user = '"+IP+"' ");
-    refreshStatusInfo();
+    //Обновляем данные в БД
+    QDateTime dTime = QDateTime::currentDateTime();
+    DB db;
+    db.insertLogTimeDB(IP, dTime.toString());
+    //Удаляем IP из вектора
+    for(int i = 0; i<IP_clients->size(); i++) {
+        if(IP_clients->at(i) == IP) {
+            IP_clients->remove(i);
+        }
+    }
 }
 
 void server::slotReadClient() {
@@ -75,55 +85,31 @@ void server::slotReadClient() {
         }
         // Переменные для получения ифнормации по ресурсам
         int cpu_value, ram_value, disk_value;
-        QString disk_name;
+        QString disk_name, IP_cl;
 
-        in >> cpu_value >> ram_value >> disk_name >> disk_value;
+        in >> IP_cl >>cpu_value >> ram_value >> disk_name >> disk_value;
         //Передаем данные в модель таблицы
-        resourcesInfo(cpu_value, ram_value, disk_name, disk_value);
+        resourcesInfo(IP_cl, cpu_value, ram_value, disk_name, disk_value);
         m_nNextBlockSize = 0;
     }
 }
 
-void server::refreshStatusInfo() {
-    model = new QSqlTableModel(this, db);
-    model->setTable("users");
-    model->select();
-    ui->infoView->setModel(model);
-    ui->infoView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-}
-
-void server::statusInfo(QString IP) {
-    query->exec("SELECT EXISTS (SELECT * FROM Users WHERE IPv4Address_user = '"+IP+"') ");
-    query->next();
-    if(query->value(0) == 0) {
-        query->exec("INSERT INTO Users (IPv4Address_user) VALUES ('"+IP+"')");
-    }
-    refreshStatusInfo();
-}
-
-void server::resourcesInfo(int cpu, int ram, QString disk_name, int disk_value) {
-    //Разбиваем полученные данные на строки
-    //Передаем данные в таблицу
-    int nRows = 0;
-    query->exec("SELECT COUNT(IPv4Address_user) FROM Users WHERE LogOnTime = 'Connected' ");
-    if(query->next()) {
-        nRows = query->value(0).toInt();
-        query->clear();
-        query->exec("SELECT IPv4Address_user FROM Users WHERE LogOnTime = 'Connected' ");
-        resourceData* resModel = new resourceData(nRows, this);
-        for(int i = 1; i<nRows+1; i++) {
-            if(query->next()) {
-                resModel->setResource(i, 1, query->value(0).toString());
-                resModel->setResource(i, 2, QString::number(cpu));
-                resModel->setResource(i, 3, QString::number(ram));
-                resModel->setResource(i, 4, disk_name);
-                resModel->setResource(i, 5, QString::number(disk_value));
-            }
+void server::resourcesInfo(QString IP_cl, int cpu, int ram, QString disk_name, int disk_value) {
+    resourceData* resModel = new resourceData(IP_clients->size(), this);
+    for(int i = 0; i<IP_clients->size(); i++) {
+        if(IP_cl == IP_clients->at(i)) {
+            resModel->setResource(i+1, 1, IP_clients->at(i));
+            resModel->setResource(i+1, 2, QString::number(cpu));
+            resModel->setResource(i+1, 3, QString::number(ram));
+            resModel->setResource(i+1, 4, disk_name);
+            resModel->setResource(i+1, 5, QString::number(disk_value));
         }
-        ui->resourcesView->setModel(resModel);
     }
+    ui->resourcesView->setModel(resModel);
 }
 
 void server::closeEvent(QCloseEvent* e) {
-    query->exec("UPDATE Users SET LogOnTime = 'Disconnected'");
+    QDateTime dTime = QDateTime::currentDateTime();
+    DB db;
+    db.insertLogTimeDB("shutdown server", dTime.toString());
 }
