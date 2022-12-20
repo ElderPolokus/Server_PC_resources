@@ -88,7 +88,7 @@ void server::slotReadClient() {
 }
 
 void server::resourcesInfo(QString IP_cl, int cpu, int ram, QString disk_name, int disk_value) {
-    if(model->findIP(IP_cl) != 0) {
+    if(model->findIP(IP_cl) != -1) {
         int row = model->findIP(IP_cl);
         model->setResource(row, 2, QString::number(cpu));
         model->setResource(row, 3, QString::number(ram));

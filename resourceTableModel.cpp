@@ -72,16 +72,16 @@ void resourceTableModel::appendClient(QString& IPAdrs, int& cpu_val, int& ram_va
 }
 
 int resourceTableModel::findIP(QString IPAdrs) {
-    int i = 0;
-    Resources::Iterator iter = m_resources.begin();
-    while(iter != m_resources.end()) {
-        if(iter->value(IPv4Address, IPAdrs).toBool()) {
+    int i = 1;
+    Resources::Iterator iter;
+    for(iter = m_resources.begin(); iter != m_resources.end(); ++iter) {
+        if((iter->value(IPv4Address)) == IPAdrs) {
             return i;
         } else {
-            iter++;
             i++;
         }
     }
+    return -1;
 }
 
 void resourceTableModel::setResource(int clientNum, int resourceType, QString course) {
