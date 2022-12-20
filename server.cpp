@@ -12,8 +12,9 @@ server::server(int nPort, QWidget *parent)
     , m_nNextBlockSize(0)
 {
     ui->setupUi(this);
-    //resourcesModel vector
-    IP_clients = new QVector<QString>;
+    //resourcesModel
+    model = new resourceTableModel;
+    ui->resourcesView->setModel(model);
     //DataBase
     DB db;
     db.connectToDB();
@@ -40,10 +41,7 @@ void server::slotNewConnection() {
     QString IP = ((QHostAddress)pClientSocket->peerAddress().toIPv4Address()).toString();
     DB db;
     db.insertLogTimeDB(IP, "Connected");
-    // Передаем IP в вектор
-    if(!IP_clients->contains(IP)) {
-        IP_clients->push_back(IP);
-    }
+
     //При отключении клиента сервер удалит сокет
     connect(pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
     connect(pClientSocket, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
@@ -58,12 +56,7 @@ void server::slotDisconnected() {
     QDateTime dTime = QDateTime::currentDateTime();
     DB db;
     db.insertLogTimeDB(IP, dTime.toString());
-    //Удаляем IP из вектора
-    for(int i = 0; i<IP_clients->size(); i++) {
-        if(IP_clients->at(i) == IP) {
-            IP_clients->remove(i);
-        }
-    }
+
 }
 
 void server::slotReadClient() {
@@ -95,17 +88,15 @@ void server::slotReadClient() {
 }
 
 void server::resourcesInfo(QString IP_cl, int cpu, int ram, QString disk_name, int disk_value) {
-    resourceData* resModel = new resourceData(IP_clients->size(), this);
-    for(int i = 0; i<IP_clients->size(); i++) {
-        if(IP_cl == IP_clients->at(i)) {
-            resModel->setResource(i+1, 1, IP_clients->at(i));
-            resModel->setResource(i+1, 2, QString::number(cpu));
-            resModel->setResource(i+1, 3, QString::number(ram));
-            resModel->setResource(i+1, 4, disk_name);
-            resModel->setResource(i+1, 5, QString::number(disk_value));
-        }
+    if(model->findIP(IP_cl) != 0) {
+        int row = model->findIP(IP_cl);
+        model->setResource(row, 2, QString::number(cpu));
+        model->setResource(row, 3, QString::number(ram));
+        model->setResource(row, 4, disk_name);
+        model->setResource(row, 5, QString::number(disk_value));
+    } else {
+        model->appendClient(IP_cl, cpu, ram, disk_name, disk_value);
     }
-    ui->resourcesView->setModel(resModel);
 }
 
 void server::closeEvent(QCloseEvent* e) {

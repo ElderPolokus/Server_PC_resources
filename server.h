@@ -1,6 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include "resourceTableModel.h"
 #include <QMainWindow>
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -24,8 +25,7 @@ private:
     QTcpServer* m_pTcpServer;
     quint16 m_nNextBlockSize;
     void sendToClient(QTcpSocket* pSocket, const QString& str);
-    QSqlTableModel* model;
-    QVector<QString>* IP_clients;
+    resourceTableModel* model;
 
 protected:
     void closeEvent(QCloseEvent* e);
