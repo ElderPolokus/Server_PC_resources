@@ -13,8 +13,8 @@ CREATE DATABASE "DB_server_connections"
 CREATE TABLE IF NOT EXISTS public.users
 (
     ipv4address_user character(20) COLLATE pg_catalog."default",
-    logontime character(30) COLLATE pg_catalog."default",
-    status character(20) COLLATE pg_catalog."default"
+    logontime timestamp,
+    logofftime timestamp
 )
 
 TABLESPACE pg_default;

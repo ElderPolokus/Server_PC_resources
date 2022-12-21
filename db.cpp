@@ -23,11 +23,10 @@ void DB::insertLogTimeDB(QString IP, QString status_log) {
     QDateTime dTime = QDateTime::currentDateTime();
     QSqlQuery query;
     if(status_log == "Connected") {
-        query.exec("INSERT INTO Users (IPv4Address_user, LogOnTime, status) VALUES ('"+IP+"', '"+dTime.toString()+"', 'Подключение')");
-        query.exec("INSERT INTO Users (IPv4Address_user, LogOnTime ,status) VALUES ('"+IP+"', '-', 'Отключение')");
+        query.exec("INSERT INTO Users (IPv4Address_user, LogOnTime) VALUES ('"+IP+"', '"+dTime.toString()+"')");
     } else if(IP == "shutdown server") {
-        query.exec("UPDATE Users SET LogOnTime = '"+dTime.toString()+"' WHERE LogOnTime = '-' ");
+        query.exec("UPDATE Users SET LogOffTime = '"+dTime.toString()+"' WHERE LogOffTime IS NULL ");
     } else {
-        query.exec("UPDATE Users SET LogOnTime = '"+dTime.toString()+"' WHERE IPv4Address_user = '"+IP+"' AND LogOnTime = '-' ");
+        query.exec("UPDATE Users SET LogOffTime = '"+dTime.toString()+"' WHERE IPv4Address_user = '"+IP+"' AND LogOffTime IS NULL ");
     }
 }

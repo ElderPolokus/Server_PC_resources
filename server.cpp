@@ -56,9 +56,8 @@ void server::slotDisconnected() {
         model->removeRowRes(IP);
     }
     //Обновляем данные в БД
-    QDateTime dTime = QDateTime::currentDateTime();
     DB db;
-    db.insertLogTimeDB(IP, dTime.toString());
+    db.insertLogTimeDB(IP, "Disconnected");
 }
 
 void server::slotReadClient() {
@@ -102,7 +101,7 @@ void server::resourcesInfo(QString IP_cl, int cpu, int ram, QString disk_name, i
 }
 
 void server::closeEvent(QCloseEvent* e) {
-    QDateTime dTime = QDateTime::currentDateTime();
+    Q_UNUSED(e);
     DB db;
-    db.insertLogTimeDB("shutdown server", dTime.toString());
+    db.insertLogTimeDB("shutdown server", "shutdown server");
 }
