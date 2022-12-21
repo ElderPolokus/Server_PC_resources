@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS public.users
 (
     ipv4address_user character(20) COLLATE pg_catalog."default",
     logontime character(30) COLLATE pg_catalog."default",
-    CONSTRAINT users_ipv4address_user_key UNIQUE (ipv4address_user)
+    status character(20) COLLATE pg_catalog."default"
 )
 
 TABLESPACE pg_default;

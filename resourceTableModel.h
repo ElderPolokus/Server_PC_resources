@@ -30,9 +30,8 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-
 public:
-    void appendClient(QString& IPAdrs, int& cpu_val, int& ram_val, QString disk_name, int disk_val);
+    void appendClient(QString& IPAdrs, int& cpu_val, int& ram_val, QString& disk_name, int& disk_val);
 
 public slots:
     int findIP(QString IPAdrs);

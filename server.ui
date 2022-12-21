@@ -23,6 +23,12 @@
       <height>200</height>
      </rect>
     </property>
+    <property name="minimumSize">
+     <size>
+      <width>600</width>
+      <height>200</height>
+     </size>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

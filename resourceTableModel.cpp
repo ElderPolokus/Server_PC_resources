@@ -57,7 +57,7 @@ bool resourceTableModel::setData(const QModelIndex &index, const QVariant &value
     return false;
 }
 
-void resourceTableModel::appendClient(QString& IPAdrs, int& cpu_val, int& ram_val, QString disk_name, int disk_val) {
+void resourceTableModel::appendClient(QString& IPAdrs, int& cpu_val, int& ram_val, QString &disk_name, int &disk_val) {
     clientData clData;
     clData[ IPv4Address ] = IPAdrs;
     clData[ CPU_val ] = cpu_val;

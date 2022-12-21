@@ -22,20 +22,12 @@ void DB::connectToDB() {
 void DB::insertLogTimeDB(QString IP, QString status_log) {
     QDateTime dTime = QDateTime::currentDateTime();
     QSqlQuery query;
-    //В зависимости от переданного статуса обновляем таблицу
     if(status_log == "Connected") {
-        //Проверка на существование IP в базе и добавление статуса
-        query.exec("SELECT EXISTS (SELECT * FROM Users WHERE IPv4Address_user = '"+IP+"') ");
-        query.next();
-        if(query.value(0) == 0) {
-            query.exec("INSERT INTO Users (IPv4Address_user, LogOnTime) VALUES ('"+IP+"', 'Connected')");
-        } else {
-            query.exec("UPDATE Users SET LogOnTime = 'Connected' WHERE IPv4Address_user = '"+IP+"' ");
-        }
+        query.exec("INSERT INTO Users (IPv4Address_user, LogOnTime, status) VALUES ('"+IP+"', '"+dTime.toString()+"', 'Подключение')");
+        query.exec("INSERT INTO Users (IPv4Address_user, LogOnTime ,status) VALUES ('"+IP+"', '-', 'Отключение')");
     } else if(IP == "shutdown server") {
-        query.exec("UPDATE Users SET LogOnTime = '"+status_log+"' WHERE LogOnTime = 'Connected' ");
+        query.exec("UPDATE Users SET LogOnTime = '"+dTime.toString()+"' WHERE LogOnTime = '-' ");
     } else {
-        query.exec("UPDATE Users SET LogOnTime = '"+status_log+"' WHERE IPv4Address_user = '"+IP+"' ");
+        query.exec("UPDATE Users SET LogOnTime = '"+dTime.toString()+"' WHERE IPv4Address_user = '"+IP+"' AND LogOnTime = '-' ");
     }
-
 }
