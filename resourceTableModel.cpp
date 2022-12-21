@@ -87,3 +87,18 @@ int resourceTableModel::findIP(QString IPAdrs) {
 void resourceTableModel::setResource(int clientNum, int resourceType, QString course) {
     setData(index(clientNum-1, resourceType-1), course, Qt::EditRole);
 }
+
+void resourceTableModel::removeRowRes(QString IPAdrs) {
+    int i = 0;
+    Resources::iterator iter = m_resources.begin();
+    while( iter != m_resources.end() ) {
+            if( iter->value( IPv4Address, IPAdrs ).toBool() ) {
+                beginRemoveRows( QModelIndex(), i, i );
+                iter = m_resources.erase( iter );
+                endRemoveRows();
+            } else {
+                ++i;
+                ++iter;
+            }
+        }
+}

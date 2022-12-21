@@ -53,8 +53,7 @@ void server::slotDisconnected() {
     QTcpSocket* pClientSocket = (QTcpSocket*)sender();
     IP = ((QHostAddress)pClientSocket->peerAddress().toIPv4Address()).toString();
     if(model->findIP(IP) != -1) {
-        model->removeRow(model->findIP(IP));
-        ui->resourcesView->setModel(model);
+        model->removeRowRes(IP);
     }
     //Обновляем данные в БД
     QDateTime dTime = QDateTime::currentDateTime();
