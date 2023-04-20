@@ -74,7 +74,7 @@ void resourceTableModel::appendClient(QString& IPAdrs, int& cpu_val, int& ram_va
 int resourceTableModel::findIP(QString IPAdrs) {
     int i = 1;
     Resources::Iterator iter;
-    for(iter = m_resources.begin(); iter != m_resources.end(); ++iter) {
+    for(iter = m_resources.begin(); iter != m_resources.end(); iter++) {
         if((iter->value(IPv4Address)) == IPAdrs) {
             return i;
         } else {
@@ -91,14 +91,14 @@ void resourceTableModel::setResource(int clientNum, int resourceType, QString co
 void resourceTableModel::removeRowRes(QString IPAdrs) {
     int i = 0;
     Resources::iterator iter = m_resources.begin();
-    while( iter != m_resources.end() ) {
-            if( iter->value( IPv4Address, IPAdrs ).toBool() ) {
-                beginRemoveRows( QModelIndex(), i, i );
-                iter = m_resources.erase( iter );
-                endRemoveRows();
-            } else {
-                ++i;
-                ++iter;
-            }
+    for(iter = m_resources.begin(); iter != m_resources.end(); iter++) {
+        if((iter->value(IPv4Address)) == IPAdrs) {
+            beginRemoveRows( QModelIndex(), i, i );
+            iter = m_resources.erase( iter );
+            endRemoveRows();
+            break;
+        } else {
+            i++;
         }
+    }
 }

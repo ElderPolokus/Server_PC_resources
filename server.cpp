@@ -6,7 +6,7 @@
 #include "db.h"
 #include "resourceTableModel.h"
 
-server::server(int nPort, QWidget *parent)
+server::server(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::server)
     , m_nNextBlockSize(0)
@@ -20,12 +20,12 @@ server::server(int nPort, QWidget *parent)
     db.connectToDB();
     //Запуск сервера
     m_pTcpServer = new QTcpServer(this);
-    if (!m_pTcpServer->listen(QHostAddress::Any, nPort)) {
+    if (!m_pTcpServer->listen(QHostAddress::Any, 2323)) {
         QMessageBox::critical(0, "Server Error", "Не удалось запустить сервер: " + m_pTcpServer->errorString());
         m_pTcpServer->close();
         return;
     }
-    //Если ошибки нет, соединяем слот с сигналом newConnection()
+    //Сигнал нового подключения
     connect(m_pTcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
 }
 
@@ -35,14 +35,15 @@ server::~server()
 }
 
 void server::slotNewConnection() {
-    //Сокет для связи с клиентом
+    //Сокет клиента
     QTcpSocket* pClientSocket = m_pTcpServer->nextPendingConnection();
-    //Вытаскиваем IP-адрес клиента
+    //IP-адрес клиента
     QString IP = ((QHostAddress)pClientSocket->peerAddress().toIPv4Address()).toString();
+    //Обновляем журнал подключений
     DB db;
     db.insertLogTimeDB(IP, "Connected");
 
-    //При отключении клиента сервер удалит сокет
+    //Сигналы
     connect(pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
     connect(pClientSocket, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
     connect(pClientSocket, SIGNAL(readyRead()), this, SLOT(slotReadClient()));
@@ -55,7 +56,7 @@ void server::slotDisconnected() {
     if(model->findIP(IP) != -1) {
         model->removeRowRes(IP);
     }
-    //Обновляем данные в БД
+    //Обновляем журнал подключений
     DB db;
     db.insertLogTimeDB(IP, "Disconnected");
 }
@@ -80,8 +81,8 @@ void server::slotReadClient() {
         // Переменные для получения ифнормации по ресурсам
         int cpu_value, ram_value, disk_value;
         QString disk_name, IP_cl;
-
         in >> IP_cl >>cpu_value >> ram_value >> disk_name >> disk_value;
+
         //Передаем данные в модель таблицы
         resourcesInfo(IP_cl, cpu_value, ram_value, disk_name, disk_value);
         m_nNextBlockSize = 0;
@@ -102,6 +103,7 @@ void server::resourcesInfo(QString IP_cl, int cpu, int ram, QString disk_name, i
 
 void server::closeEvent(QCloseEvent* e) {
     Q_UNUSED(e);
+    //Обновляем журнал подключений
     DB db;
     db.insertLogTimeDB("shutdown server", "shutdown server");
 }

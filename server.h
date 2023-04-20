@@ -17,7 +17,7 @@ class server : public QMainWindow
     Q_OBJECT
 
 public:
-    server(int nPort, QWidget *parent = nullptr);
+    server(QWidget *parent = nullptr);
     ~server();
 
 private:
